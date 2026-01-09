@@ -436,6 +436,8 @@ A: 运行 `打包TOTP注册机.bat` 脚本，会自动：
 
 🔥 不止是贪吃蛇！带扫码登录 + 数据同步 + 管理员后台的全功能 Web 游戏系统，内置 TOTP 双因子认证保障安全，游戏记录永久保存，支持多设备同步，轻松部署即用～训练逻辑思维用。
 
-https://www.star-history.com/#ctfwubai/snake-game&type=date&legend=top-left
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=ctfwubai/snake-game&type=date&legend=top-left)](https://www.star-history.com/#ctfwubai/snake-game&type=date&legend=top-left)
 
 >>>>>>> 

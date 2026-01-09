@@ -1,0 +1,18 @@
+{
+  "scanLink": "http://10.8.4.89:8888",
+  "wechatQR": "",
+  "inviteCodes": [
+    "VIP2024",
+    "SNAKE001",
+    "GAME2024"
+  ],
+  "adminPassword": "admin123",
+  "challengeSpeedIncrease": 5,
+  "challengeBaseSpeed": 250,
+  "mfaEnabled": false,
+  "mfaSecret": "ZUL5VGKL4Z7CGIXH",
+  "gameMode": "classic",
+  "speed": 5,
+  "theme": "classic",
+  "requireInviteCode": true
+}

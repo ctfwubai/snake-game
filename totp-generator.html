@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOTP 注册机 - 动态验证码生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
+            max-width: 520px;
+            width: 100%;
+            padding: 45px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .logo-icon svg {
+            width: 36px;
+            height: 36px;
+            fill: white;
+        }
+
+        h1 {
+            color: #1a202c;
+            margin-bottom: 8px;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 15px;
+            margin-bottom: 0;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper svg {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            fill: #a0aec0;
+            transition: fill 0.3s;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        input[type="text"]::placeholder {
+            color: #cbd5e0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            letter-spacing: normal;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="text"]:focus + svg {
+            fill: #667eea;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.45);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.35);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #718096;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-secondary:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+        }
+
+        .code-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            margin: 30px 0 35px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .code-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+            background-size: 24px 24px;
+            animation: moveBackground 30s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .code-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .code-value {
+            color: white;
+            font-size: 52px;
+            font-weight: 700;
+            font-family: 'Courier New', 'Consolas', monospace;
+            letter-spacing: 10px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            line-height: 1.1;
+        }
+
+        .timer-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 3px;
+            margin-top: 20px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timer-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            transition: width 1s linear, background 0.3s;
+            border-radius: 3px;
+            box-shadow: 0 0 12px currentColor;
+        }
+
+        @property --timer-shadow {
+            syntax: '<color>';
+            inherits: false;
+            initial-value: rgba(16, 185, 129, 0.4);
+        }
+
+        .time-remaining {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 13px;
+            margin-top: 10px;
+            position: relative;
+            z-index: 1;
+            font-weight: 500;
+        }
+
+        .time-remaining span {
+            font-weight: 700;
+            font-size: 18px;
+            color: white;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-top: 0;
+        }
+
+        .info-box h3 {
+            color: #2d3748;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box h3::before {
+            content: '💡';
+            font-size: 18px;
+        }
+
+        .info-box ul {
+            color: #4a5568;
+            font-size: 13px;
+            padding-left: 24px;
+            margin: 0;
+            line-height: 1.8;
+        }
+
+        .info-box li {
+            margin-bottom: 8px;
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 1px solid #fc8181;
+            color: #9b2c2c;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .server-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #065f46;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+        }
+
+        .status-dot.offline {
+            background: #f59e0b;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 24px;
+                border-radius: 20px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .code-value {
+                font-size: 42px;
+                letter-spacing: 6px;
+            }
+
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM11 7H13V9H11V7ZM11 11H13V13H11V11ZM11 15H13V17H11V15Z" fill="currentColor"/>
+                </svg>
+            </div>
+            <h1>TOTP 注册机</h1>
+            <p class="subtitle">安全可靠的动态验证码生成器</p>
+        </div>
+
+        <div class="error-message" id="error-message"></div>
+
+        <div class="input-group">
+            <label for="secret-key">TOTP 密钥</label>
+            <div class="input-wrapper">
+                <input
+                    type="text"
+                    id="secret-key"
+                    placeholder="输入您的密钥（如：JBSWY3DPEHPK3PXP）"
+                    autocomplete="off"
+                >
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 17C13.1 17 14 16.1 14 15V14H10V15C10 16.1 10.9 17 12 17M18 8H19C20.66 8 22 9.34 22 11V17C22 18.66 20.66 20 19 20H18V19H19C19.55 19 20 18.55 20 18V10C20 8.9 19.1 8 18.5 8H17.82C17.4 6.84 16.3 6 15 6H9C7.34 6 6 7.34 6 9V10C6 11.66 7.34 13 9 13H10V11H9C8.45 11 8 11.45 8 12V15C8 15.66 8.45 17 9 17H9V15C7.34 15 6 13.66 6 11V9C6 7.34 7.34 6 9 6M16 12V17H18V12H16Z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="server-status" id="server-status">
+            <span class="status-dot"></span>
+            <span>服务器连接中...</span>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="generateCode()">
+                <span>生成验证码</span>
+            </button>
+            <button class="btn btn-secondary" onclick="clearSecret()">
+                <span>清除密钥</span>
+            </button>
+        </div>
+
+        <div class="code-display" id="code-display" style="display: none;">
+            <div class="code-label">当前验证码</div>
+            <div class="code-value" id="code-value">------</div>
+            <div class="timer-bar">
+                <div class="timer-progress" id="timer-progress"></div>
+            </div>
+            <div class="time-remaining">剩余 <span id="time-remaining">30</span> 秒</div>
+        </div>
+
+        <div class="info-box">
+            <h3>使用说明</h3>
+            <ul>
+                <li>输入您的 TOTP 密钥（Secret Key）</li>
+                <li>密钥通常由16位字母和数字组成</li>
+                <li>验证码每30秒自动更新</li>
+                <li>连接服务器确保与手机APP一致</li>
+                <li>请妥善保管您的密钥，不要泄露给他人</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let countdownInterval = null;
+        let updateTimerInterval = null;
+        let currentSecret = '';
+        let isServerConnected = false;
+
+        // 获取服务器地址
+        const getServerUrl = () => {
+            const isLocal = window.location.protocol === 'file:';
+            if (isLocal) {
+                return 'http://localhost:8888';
+            }
+            return window.location.origin;
+        };
+
+        // Base32 解码
+        function base32Decode(encoded) {
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+            let bits = 0;
+            let value = 0;
+            let output = [];
+            const cleanInput = encoded.toUpperCase().replace(/[^A-Z2-7]/g, '');
+
+            for (let i = 0; i < cleanInput.length; i++) {
+                const index = alphabet.indexOf(cleanInput[i]);
+                if (index === -1) continue;
+
+                value = (value << 5) | index;
+                bits += 5;
+
+                if (bits >= 8) {
+                    output.push((value >>> (bits - 8)) & 255);
+                    bits -= 8;
+                }
+            }
+
+            return new Uint8Array(output);
+        }
+
+        // HMAC-SHA1
+        async function hmacSha1(key, message) {
+            const cryptoKey = await window.crypto.subtle.importKey(
+                'raw',
+                key,
+                { name: 'HMAC', hash: 'SHA-1' },
+                false,
+                ['sign']
+            );
+
+            const signature = await window.crypto.subtle.sign(
+                'HMAC',
+                cryptoKey,
+                message
+            );
+
+            return new Uint8Array(signature);
+        }
+
+        // 生成 TOTP 验证码（本地版本）
+        async function generateTOTP(secret) {
+            try {
+                const key = base32Decode(secret);
+
+                const time = Math.floor(Date.now() / 1000 / 30);
+                const timeBuffer = new ArrayBuffer(8);
+                const timeView = new DataView(timeBuffer);
+                timeView.setUint32(4, time, false);
+
+                const hmac = await hmacSha1(key, new Uint8Array(timeBuffer));
+
+                const offset = hmac[hmac.length - 1] & 0x0f;
+                const binary =
+                    ((hmac[offset] & 0x7f) << 24) |
+                    (hmac[offset + 1] << 16) |
+                    (hmac[offset + 2] << 8) |
+                    hmac[offset + 3];
+
+                const otp = binary % 1000000;
+
+                return String(otp).padStart(6, '0');
+            } catch (error) {
+                throw new Error('密钥格式错误，请检查输入');
+            }
+        }
+
+        // 从服务器生成 TOTP 验证码
+        async function generateTOTPServer(secret) {
+            try {
+                const serverUrl = getServerUrl();
+                const response = await fetch(`${serverUrl}/api/generate-totp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ secret })
+                });
+
+                if (!response.ok) {
+                    throw new Error('服务器连接失败');
+                }
+
+                const result = await response.json();
+                if (result.success) {
+                    isServerConnected = true;
+                    updateServerStatus();
+                    return result.code;
+                }
+                throw new Error('生成失败');
+            } catch (error) {
+                isServerConnected = false;
+                updateServerStatus();
+                return await generateTOTP(secret);
+            }
+        }
+
+        // 更新服务器状态显示
+        function updateServerStatus() {
+            const statusEl = document.getElementById('server-status');
+            const dotEl = statusEl.querySelector('.status-dot');
+            const textEl = statusEl.querySelector('span:last-child');
+
+            if (isServerConnected) {
+                dotEl.classList.remove('offline');
+                textEl.textContent = '已连接服务器';
+            } else {
+                dotEl.classList.add('offline');
+                textEl.textContent = '使用本地生成';
+            }
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // 更新倒计时
+        function updateCountdown() {
+            const now = Date.now();
+            const timeStep = 30 * 1000;
+            const currentStep = Math.floor(now / timeStep);
+            const nextStep = (currentStep + 1) * timeStep;
+            const remaining = Math.ceil((nextStep - now) / 1000);
+
+            const timeRemainingEl = document.getElementById('time-remaining');
+            const timerProgressEl = document.getElementById('timer-progress');
+
+            if (timeRemainingEl && timerProgressEl) {
+                timeRemainingEl.textContent = remaining;
+
+                // 进度条颜色变化
+                let progressColor, shadowColor;
+                if (remaining > 20) {
+                    progressColor = 'linear-gradient(90deg, #10b981, #34d399)';
+                    shadowColor = 'rgba(16, 185, 129, 0.4)';
+                } else if (remaining > 10) {
+                    progressColor = 'linear-gradient(90deg, #f59e0b, #fbbf24)';
+                    shadowColor = 'rgba(245, 158, 11, 0.4)';
+                } else {
+                    progressColor = 'linear-gradient(90deg, #ef4444, #f87171)';
+                    shadowColor = 'rgba(239, 68, 68, 0.4)';
+                }
+
+                timerProgressEl.style.background = progressColor;
+                timerProgressEl.style.boxShadow = `0 0 12px ${shadowColor}`;
+                timerProgressEl.style.width = `${(remaining / 30) * 100}%`;
+            }
+        }
+
+        // 生成验证码并启动倒计时
+        async function generateCode() {
+            const secretInput = document.getElementById('secret-key');
+            const secret = secretInput.value.trim();
+
+            if (!secret) {
+                showError('请输入 TOTP 密钥');
+                secretInput.focus();
+                return;
+            }
+
+            try {
+                currentSecret = secret;
+
+                // 保存到 localStorage
+                localStorage.setItem('totp_secret', secret);
+
+                // 尝试从服务器生成
+                const code = await generateTOTPServer(secret);
+
+                document.getElementById('code-display').style.display = 'block';
+                document.getElementById('code-value').textContent = code;
+
+                // 清除旧的定时器
+                if (countdownInterval) clearInterval(countdownInterval);
+                if (updateTimerInterval) clearInterval(updateTimerInterval);
+
+                // 立即更新一次
+                updateCountdown();
+
+                // 每秒更新倒计时
+                countdownInterval = setInterval(updateCountdown, 1000);
+
+                // 每30秒生成新验证码
+                updateTimerInterval = setInterval(async () => {
+                    try {
+                        const newCode = await generateTOTPServer(currentSecret);
+                        document.getElementById('code-value').textContent = newCode;
+                    } catch (error) {
+                        console.error('自动更新失败:', error);
+                    }
+                }, 30000);
+
+            } catch (error) {
+                showError(error.message);
+                document.getElementById('code-display').style.display = 'none';
+            }
+        }
+
+        // 清除密钥
+        function clearSecret() {
+            document.getElementById('secret-key').value = '';
+            document.getElementById('secret-key').focus();
+            localStorage.removeItem('totp_secret');
+            if (countdownInterval) clearInterval(countdownInterval);
+            if (updateTimerInterval) clearInterval(updateTimerInterval);
+            document.getElementById('code-display').style.display = 'none';
+        }
+
+        // 页面加载时恢复密钥
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedSecret = localStorage.getItem('totp_secret');
+            if (savedSecret) {
+                document.getElementById('secret-key').value = savedSecret;
+                generateCode();
+            } else {
+                // 自动聚焦输入框
+                document.getElementById('secret-key').focus();
+            }
+        });
+
+        // 页面卸载时清理定时器
+        window.addEventListener('beforeunload', () => {
+            if (countdownInterval) clearInterval(countdownInterval);
+            if (updateTimerInterval) clearInterval(updateTimerInterval);
+        });
+
+        // 支持按回车生成
+        document.getElementById('secret-key').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                generateCode();
+            }
+        });
+    </script>
+</body>
+</html>

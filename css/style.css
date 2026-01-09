@@ -1,0 +1,373 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Microsoft YaHei', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+#page-container {
+    min-height: 100vh;
+}
+
+/* 按钮样式 */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-success {
+    background: #10b981;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #059669;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+.btn-warning {
+    background: #f59e0b;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #d97706;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+/* 输入框样式 */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* 卡片样式 */
+.card {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* 二维码容器 */
+.qr-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: #f7fafc;
+    border-radius: 12px;
+}
+
+.qr-container canvas {
+    border: 4px solid white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.qr-container p {
+    color: #718096;
+    font-size: 14px;
+}
+
+/* 表格样式 */
+.table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th,
+table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+table th {
+    background: #f7fafc;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+table tr:hover {
+    background: #f7fafc;
+}
+
+/* Toast 提示 */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 16px 24px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    animation: slideIn 0.3s ease;
+}
+
+.toast.success {
+    border-left: 4px solid #10b981;
+}
+
+.toast.error {
+    border-left: 4px solid #ef4444;
+}
+
+.toast.warning {
+    border-left: 4px solid #f59e0b;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* 游戏页面样式 */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.game-info {
+    display: flex;
+    gap: 40px;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}
+
+#game-canvas {
+    border: 4px solid white;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.game-controls {
+    display: flex;
+    gap: 16px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .card {
+        padding: 20px;
+    }
+
+    .game-info {
+        gap: 20px;
+        font-size: 16px;
+    }
+}
+
+/* 游戏手柄样式 */
+.gamepad-container {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto;
+}
+
+.gamepad-base {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, #2a2a2a 0%, #1a1a1a 100%);
+    border-radius: 50%;
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.1);
+    border: 3px solid #3a3a3a;
+}
+
+.gamepad-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(145deg, #333 0%, #222 100%);
+    border-radius: 50%;
+    box-shadow:
+        inset 0 2px 8px rgba(0, 0, 0, 0.5),
+        0 2px 4px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gamepad-center::after {
+    content: '';
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(145deg, #444 0%, #333 100%);
+    border-radius: 50%;
+}
+
+.direction-btn {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    font-size: 28px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #667eea 0%, #5568d3 100%);
+    color: white;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow:
+        0 4px 12px rgba(102, 126, 234, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    z-index: 10;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.direction-btn:active {
+    transform: scale(0.92);
+    background: linear-gradient(145deg, #5568d3 0%, #4c51bf 100%);
+    box-shadow:
+        0 2px 6px rgba(102, 126, 234, 0.4),
+        inset 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.direction-btn[data-direction="up"] {
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.direction-btn[data-direction="up"]:active {
+    transform: translateX(-50%) scale(0.92);
+}
+
+.direction-btn[data-direction="down"] {
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.direction-btn[data-direction="down"]:active {
+    transform: translateX(-50%) scale(0.92);
+}
+
+.direction-btn[data-direction="left"] {
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.direction-btn[data-direction="left"]:active {
+    transform: translateY(-50%) scale(0.92);
+}
+
+.direction-btn[data-direction="right"] {
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.direction-btn[data-direction="right"]:active {
+    transform: translateY(-50%) scale(0.92);
+}
+
+/* 方向图标优化 */
+.direction-btn::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    background: white;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    transform: translateY(2px);
+}
+
+.direction-btn[data-direction="down"]::before {
+    clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+    transform: translateY(-2px);
+}
+
+.direction-btn[data-direction="left"]::before {
+    clip-path: polygon(100% 0%, 0% 50%, 100% 100%);
+    transform: translateX(2px);
+}
+
+.direction-btn[data-direction="right"]::before {
+    clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
+    transform: translateX(-2px);
+}
+

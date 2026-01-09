@@ -1,0 +1,302 @@
+/* 设置卡片样式 */
+.settings-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.settings-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    text-align: center;
+}
+
+.settings-header h3 {
+    margin: 0;
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.settings-body {
+    padding: 24px;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.setting-icon {
+    font-size: 24px;
+}
+
+.setting-label span:last-child {
+    font-size: 15px;
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.setting-control {
+    flex: 1;
+    text-align: right;
+}
+
+.setting-control select {
+    width: 160px;
+    padding: 10px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #4a5568;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236677ea' d='M2 4l4 4 4-4' stroke='%236677ea' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+
+.setting-control select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.setting-control select:hover {
+    border-color: #cbd5e0;
+}
+
+.setting-control input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    max-width: 160px;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    outline: none;
+}
+
+.setting-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+    transition: transform 0.2s ease;
+}
+
+.setting-control input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+.setting-control input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+.speed-display {
+    display: inline-block;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-left: 10px;
+    min-width: 60px;
+    text-align: center;
+}
+
+/* 设置切换按钮 */
+.settings-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 400px;
+    margin-top: 20px;
+}
+
+.settings-toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.settings-toggle-btn:active {
+    transform: translateY(0);
+}
+
+.settings-toggle-btn .settings-icon {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+}
+
+.settings-toggle-btn .settings-text {
+    font-size: 15px;
+}
+
+/* 设置卡片（可折叠） */
+.settings-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    margin-top: 16px;
+    width: 100%;
+    max-width: 400px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.settings-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.settings-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.settings-title span {
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.settings-close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 20px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.settings-close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.settings-close-btn:active {
+    transform: scale(0.95);
+}
+
+/* 手机端优化 */
+@media (max-width: 768px) {
+    .settings-toggle-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+
+    .settings-toggle-btn .settings-icon {
+        font-size: 18px;
+    }
+
+    .settings-toggle-btn .settings-text {
+        font-size: 14px;
+    }
+
+    .settings-card {
+        margin-top: 12px;
+    }
+
+    .settings-header {
+        padding: 14px 16px;
+    }
+
+    .settings-title span {
+        font-size: 16px;
+    }
+
+    .settings-body {
+        padding: 16px;
+    }
+
+    .setting-item {
+        padding: 12px 0;
+    }
+
+    .setting-label span:last-child {
+        font-size: 14px;
+    }
+
+    .setting-control select {
+        width: 140px;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .setting-control input[type="range"] {
+        max-width: 140px;
+    }
+
+    .speed-display {
+        font-size: 12px;
+        padding: 3px 10px;
+        min-width: 55px;
+    }
+}
+

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录调试工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .error {
+            border-left-color: #f44336;
+            background: #fee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 登录调试工具</h1>
+
+        <div class="form-group">
+            <label>当前访问地址:</label>
+            <input type="text" id="currentOrigin" readonly value="">
+        </div>
+
+        <div class="form-group">
+            <label>API Base URL:</label>
+            <input type="text" id="apiBaseUrl" readonly value="">
+        </div>
+
+        <div class="form-group">
+            <label>手机尾号 (4位):</label>
+            <input type="text" id="phoneTail" placeholder="3721" maxlength="4">
+        </div>
+
+        <div class="form-group">
+            <label>设备 ID:</label>
+            <input type="text" id="deviceId" readonly value="">
+        </div>
+
+        <button onclick="testLogin()">📱 测试登录</button>
+        <button onclick="testGetLogs()">📋 查看登录记录</button>
+        <button onclick="testGetUsers()">👥 查看用户列表</button>
+        <button onclick="clearResult()">🗑️ 清空结果</button>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        // 显示当前访问信息
+        document.getElementById('currentOrigin').value = window.location.origin;
+        document.getElementById('apiBaseUrl').value = window.location.origin;
+
+        // 生成设备 ID
+        const deviceId = 'device-' + Math.random().toString(36).substring(2, 15) + '-' + Date.now();
+        document.getElementById('deviceId').value = deviceId;
+
+        function clearResult() {
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('result').className = 'result';
+        }
+
+        function log(message, isError = false) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML += message + '\n\n';
+            if (isError) {
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function testLogin() {
+            clearResult();
+            const phoneTail = document.getElementById('phoneTail').value.trim();
+            const deviceId = document.getElementById('deviceId').value;
+            const apiBaseUrl = document.getElementById('apiBaseUrl').value;
+
+            log(`📱 测试登录...`);
+            log(`手机尾号: ${phoneTail}`);
+            log(`设备ID: ${deviceId}`);
+            log(`API地址: ${apiBaseUrl}`);
+
+            if (!phoneTail || phoneTail.length !== 4 || !/^\d+$/.test(phoneTail)) {
+                log('❌ 请输入正确的4位手机尾号', true);
+                return;
+            }
+
+            try {
+                log('正在发送登录请求...', false);
+                const response = await fetch(`${apiBaseUrl}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        phoneTail: phoneTail,
+                        deviceId: deviceId
+                    })
+                });
+
+                log(`响应状态码: ${response.status} ${response.statusText}`);
+                log(`响应类型: ${response.headers.get('content-type')}`);
+
+                const result = await response.json();
+                log(`登录响应: ${JSON.stringify(result, null, 2)}`);
+
+                if (result.success) {
+                    log('✅ 登录成功!');
+                    log(`用户ID: ${result.user.id}`);
+                    log(`用户名: ${result.user.name}`);
+                    log(`手机尾号: ${result.user.phoneSuffix}`);
+                } else {
+                    log(`❌ 登录失败: ${result.message}`, true);
+                }
+            } catch (error) {
+                log(`❌ 请求失败: ${error.message}`, true);
+                log(`错误堆栈: ${error.stack}`, true);
+            }
+
+            // 延迟查看登录日志
+            setTimeout(testGetLogs, 1000);
+        }
+
+        async function testGetLogs() {
+            log('📋 正在获取登录记录...');
+            const apiBaseUrl = document.getElementById('apiBaseUrl').value;
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/api/login-logs`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const logs = await response.json();
+                log(`登录记录数量: ${logs.length}`);
+                log(`登录记录内容:\n${JSON.stringify(logs, null, 2)}`);
+
+                if (logs.length === 0) {
+                    log('⚠️ 警告: 登录记录为空!', true);
+                    log('可能原因:');
+                    log('1. 登录请求没有成功到达服务器');
+                    log('2. 服务器端保存日志时出错');
+                    log('3. 文件权限问题导致无法写入');
+                    log('4. IP地址获取失败导致日志被忽略');
+                }
+            } catch (error) {
+                log(`❌ 获取日志失败: ${error.message}`, true);
+            }
+        }
+
+        async function testGetUsers() {
+            log('👥 正在获取用户列表...');
+            const apiBaseUrl = document.getElementById('apiBaseUrl').value;
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/api/users`, {
+                    method: 'GET'
+                });
+
+                const users = await response.json();
+                log(`用户数量: ${users.length}`);
+                log(`用户列表:\n${JSON.stringify(users, null, 2)}`);
+            } catch (error) {
+                log(`❌ 获取用户失败: ${error.message}`, true);
+            }
+        }
+    </script>
+</body>
+</html>

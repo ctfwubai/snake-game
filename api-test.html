@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-item {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success {
+            border-left: 4px solid #10b981;
+            background: #ecfdf5;
+        }
+        .error {
+            border-left: 4px solid #ef4444;
+            background: #fef2f2;
+        }
+        .info {
+            border-left: 4px solid #3b82f6;
+            background: #eff6ff;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>API 连接测试</h1>
+    <div id="results"></div>
+
+    <div class="test-item">
+        <h3>API 测试按钮</h3>
+        <button onclick="testAPI('/api/users', 'GET')">测试用户API</button>
+        <button onclick="testAPI('/api/games', 'GET')">测试游戏记录API</button>
+        <button onclick="testAPI('/api/login-logs', 'GET')">测试登录记录API</button>
+        <button onclick="testAPI('/api/admin/config', 'GET')">测试配置API</button>
+    </div>
+
+    <script>
+        const apiBaseUrl = window.location.origin;
+
+        async function testAPI(endpoint, method) {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'test-item info';
+            resultDiv.innerHTML = `<strong>测试 ${endpoint} (${method})...</strong>`;
+            document.getElementById('results').appendChild(resultDiv);
+
+            try {
+                console.log(`正在测试 ${endpoint}...`);
+                const startTime = Date.now();
+
+                const response = await fetch(`${apiBaseUrl}${endpoint}`, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+
+                console.log(`响应状态: ${response.status}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log(`响应数据:`, data);
+
+                const dataType = Array.isArray(data) ? '数组' : typeof data;
+                const dataLength = Array.isArray(data) ? `${data.length} 条` : JSON.stringify(data).length + ' 字符';
+
+                resultDiv.className = 'test-item success';
+                resultDiv.innerHTML = `
+                    <strong>✓ ${endpoint} (${method}) - 成功</strong><br>
+                    <small>耗时: ${duration}ms | 类型: ${dataType} | 大小: ${dataLength}</small><br>
+                    <details>
+                        <summary>查看详细数据</summary>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </details>
+                `;
+            } catch (error) {
+                console.error(`API 测试失败:`, error);
+                resultDiv.className = 'test-item error';
+                resultDiv.innerHTML = `
+                    <strong>✗ ${endpoint} (${method}) - 失败</strong><br>
+                    <small>错误: ${error.message}</small><br>
+                    <small>API Base URL: ${apiBaseUrl}</small>
+                `;
+            }
+        }
+
+        // 页面加载时自动测试
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('API Base URL:', apiBaseUrl);
+            console.log('当前页面 URL:', window.location.href);
+
+            // 自动测试所有 API
+            setTimeout(() => {
+                testAPI('/api/users', 'GET');
+            }, 500);
+            setTimeout(() => {
+                testAPI('/api/games', 'GET');
+            }, 1000);
+            setTimeout(() => {
+                testAPI('/api/login-logs', 'GET');
+            }, 1500);
+            setTimeout(() => {
+                testAPI('/api/admin/config', 'GET');
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
